@@ -24,9 +24,11 @@ const element = (tag, classes = [], content = '') => {
   return node;
 }
 
+function noop() {};
 
 export function upload(selector, options = {}) {
   let files = [];
+  const onUpload = options.onUpload ?? noop;
   const input = document.querySelector(selector);
   const preview = element('div', ['preview']);
   const open = element('button', ['btn'], 'Select');
@@ -104,8 +106,16 @@ export function upload(selector, options = {}) {
     setTimeout(() => block.remove(), 300);
   }
 
-  const uploadHandler = () => {
+  const clearPreview = (el) => {
+    el.style.bottom = '0';
+    el.innerHTML = '<div class="preview__info-progress"></div>'
+  }
 
+  const uploadHandler = () => {
+    preview.querySelectorAll('.preview__remove').forEach((item) => item.remove());
+    const previewInfo = preview.querySelectorAll('.preview__info');
+    previewInfo.forEach(clearPreview);
+    onUpload(files, previewInfo)
   }
 
   open.addEventListener('click', triggerInput);
